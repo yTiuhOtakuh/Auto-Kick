@@ -19,7 +19,7 @@ API_HASH = os.getenv("API_HASH", "cdae9279d0105638165415bf2769730d")
 COMMAND_PREFIX = os.getenv("PREFIX", ".")
 
 # Default kick time in hours
-DEFAULT_KICK_TIME_HOURS = int(os.getenv("DEFAULT_KICK_TIME_HOURS", "720"))  # 30 days in hours
+DEFAULT_KICK_TIME_HOURS = int(os.getenv("DEFAULT_KICK_TIME_HOURS", "43200"))  # 30 days in hours
 
 # Set up the MongoDB client and database
 mongo_client = pymongo.MongoClient(MONGO_URI)
@@ -55,7 +55,7 @@ async def kick_command(client: Client, message: Message):
         # Parse the command arguments
         args = message.text.split()[1:]
         if len(args) < 1 or len(args) > 2:
-            await message.reply(f"**Usage**:\n\n{COMMAND_PREFIX}kick [user_id] [kick_time_in_hours]")
+            await message.reply(f"**Usage**:\n\n{COMMAND_PREFIX}kick [user_id] [kick_time_in_minutes]")
             return
 
         try:
@@ -67,10 +67,10 @@ async def kick_command(client: Client, message: Message):
 
         # Save the user ID and kick time to the database
         kick_time = int(kick_time)
-        kick_datetime = datetime.utcnow() + timedelta(hours=kick_time)
+        kick_datetime = datetime.utcnow() + timedelta(minutes=kick_time)
         col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
 
-        await message.reply(f"User {user_id} will be kicked in {kick_time} hours.")
+        await message.reply(f"User {user_id} will be kicked in {kick_time} minutes.")
 
 
 async def check_kicks():
