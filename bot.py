@@ -11,7 +11,6 @@ MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "mydatabase")
 MONGO_COLLECTION_NAME = os.getenv("MONGO_COLLECTION_NAME", "kicks")
 
 # Pyrogram variables
-SESSION_NAME = os.getenv("SESSION_NAME", "kickbot")
 BOT_TOKEN = os.getenv("BOT_TOKEN", "6214533661:AAHi_Op06eO6ms0HIiP1EqBVCU1xmKEoqVo")
 API_ID = int(os.getenv("API_ID", "11948995"))
 API_HASH = os.getenv("API_HASH", "cdae9279d0105638165415bf2769730d")
@@ -29,11 +28,15 @@ col = db[MONGO_COLLECTION_NAME]
 
 # Set up the Pyrogram client
 app = Client(
-    SESSION_NAME,
+    kickbot,
     bot_token=BOT_TOKEN,
     api_id=API_ID,
     api_hash=API_HASH,
 )
+
+@app.on_message(filters.command("start"))
+async def start(client: Client, message: Message):
+    await message.reply("Hi, I'm KickBot And I can Kick Members, From Your Group, After Given Time")
 
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
