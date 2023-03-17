@@ -120,6 +120,8 @@ async def check_kicks_periodic():
 
 
 if __name__ == "__main__":
+    # notify
+    print("started vroom vroom •••")
     # Start the Pyrogram client
     app.start()
 
