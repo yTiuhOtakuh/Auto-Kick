@@ -64,17 +64,28 @@ async def kick_command(client: Client, message: Message):
 
         try:
             user_id = int(args[0])
-            kick_time = int(args[1]) if len(args) == 2 else DEFAULT_KICK_TIME
+            kick_time_str = args[1] if len(args) == 2 else str(DEFAULT_KICK_TIME)
         except ValueError:
             await message.reply("User ID and kick time must be integers!")
             return
 
+        # Convert kick time string to datetime.timedelta
+        kick_time_str = kick_time_str.lower()
+        if kick_time_str.endswith("m"):
+            kick_time = timedelta(minutes=int(kick_time_str[:-1]))
+        elif kick_time_str.endswith("h"):
+            kick_time = timedelta(hours=int(kick_time_str[:-1]))
+        elif kick_time_str.endswith("d"):
+            kick_time = timedelta(days=int(kick_time_str[:-1]))
+        else:
+            await message.reply("Invalid kick time format! Please provide kick time in the format of [number][m/h/d].")
+            return
+
         # Save the user ID and kick time to the database
-        kick_time = int(kick_time)
-        kick_datetime = datetime.utcnow() + timedelta(minutes=kick_time)
+        kick_datetime = datetime.utcnow() + kick_time
         col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
 
-        await message.reply(f"User {user_id} will be kicked in {kick_time} minutes.")
+        await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
 
 
 async def check_kicks():
