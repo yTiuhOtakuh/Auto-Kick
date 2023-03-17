@@ -37,7 +37,7 @@ app = Client(
 @app.on_message(filters.command("start") & filters.private)
 async def start(client: Client, message: Message):
     user=message.from_user
-    await message.reply(f"**Hi** {user.first_name},\n\n**I'm KickBot, kicks group members after given time. Boom!**")
+    await message.reply(f"**Hi** {user.first_name},\nI'm KickBot, kicks group members after given time. Boom!")
 
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
