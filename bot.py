@@ -36,13 +36,12 @@ app = Client(
 
 @app.on_message(filters.command("start") & filters.private)
 async def start(client: Client, message: Message):
+    user=message.from_user
     await message.reply(f"**Hi** {user.first_name},\n**I'm KickBot, kicks group members after given time. Boom!**")
 
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
-    # user id
-    user=message.from_user
     # Check if the user is a group admin
     administrators = []
     async for m in app.get_chat_members(message.chat.id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
