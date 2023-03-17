@@ -7,3 +7,6 @@ git clone https://github.com/irymee/Auto-Kick.git
 cd Auto-Kick
 python3 bot.py
 ```
+
+## License
+This code is licensed under the [MIT](https://choosealicense.com/licenses/mit/)
