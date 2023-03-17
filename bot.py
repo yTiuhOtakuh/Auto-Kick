@@ -103,7 +103,7 @@ async def check_kicks():
 
         if time_diff.total_seconds() <= 0:
             try:
-                await app.kick_chat_member(chat_id, user_id)
+                await app.ban_chat_member(chat_id, user_id)
                 await app.unban_chat_member(chat_id, user_id)
             except Exception as e:
                 print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
