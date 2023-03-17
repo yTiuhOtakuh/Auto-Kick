@@ -111,9 +111,20 @@ async def check_kicks():
             col.delete_one({"_id": kick["_id"]})
 
 
-if __name__ == "__main__":
-    # start message in terminal
-    print("Bot Started 🤩")
-    # Start the Pyrogram client
-    app.run()
+async def check_kicks_periodic():
+    while True:
+        # Check the kicks database
+        await check_kicks()
+        # Wait for 1 minute before checking again
+        await asyncio.sleep(60)
 
+
+if __name__ == "__main__":
+    # Start the Pyrogram client
+    app.start()
+
+    # Start the periodic kicks checker
+    app.loop.create_task(check_kicks_periodic())
+
+    # Run the client until it's stopped
+    app.idle()
