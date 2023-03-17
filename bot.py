@@ -36,7 +36,7 @@ app = Client(
 
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply("Hi, I'm KickBot And I can Kick Members, From Your Group, After Given Time")
+    await message.reply("Hi,\nI'm KickBot And I can Kick Members, From Your Group, After Given Time")
 
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
@@ -54,7 +54,7 @@ async def kick_command(client: Client, message: Message):
         # Parse the command arguments
         args = message.text.split()[1:]
         if len(args) < 1 or len(args) > 2:
-            await message.reply(f"Usage: {COMMAND_PREFIX}kick <user_id> [kick_time_in_hours]")
+            await message.reply(f"Usage:\n{COMMAND_PREFIX}kick [user_id] [kick_time_in_hours]")
             return
 
         user_id = args[0]
