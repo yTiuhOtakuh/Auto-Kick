@@ -5,15 +5,15 @@ from pyrogram import Client, filters
 from pyrogram.types import *
 
 # MongoDB variables
-MONGO_URI = os.getenv("MONGO_URI", "")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://ryme:ryme@cluster0.32cpya3.mongodb.net/?retryWrites=true&w=majority")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "mydatabase")
 MONGO_COLLECTION_NAME = os.getenv("MONGO_COLLECTION_NAME", "kicks")
 
 # Pyrogram variables
 SESSION_NAME = os.getenv("SESSION_NAME", "kickbot")
-BOT_TOKEN = os.getenv("BOT_TOKEN", "")
-API_ID = int(os.getenv("API_ID", ""))
-API_HASH = os.getenv("API_HASH", "")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "6214533661:AAHi_Op06eO6ms0HIiP1EqBVCU1xmKEoqVo")
+API_ID = int(os.getenv("API_ID", "11948995"))
+API_HASH = os.getenv("API_HASH", "cdae9279d0105638165415bf2769730d")
 
 # Command prefix
 COMMAND_PREFIX = os.getenv("PREFIX", ".")
