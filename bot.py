@@ -122,11 +122,13 @@ async def check_kicks_periodic():
 if __name__ == "__main__":
     # notify
     print("started vroom vroom •••")
-    # Start the Pyrogram client
-    app.run()
 
     # Start the periodic kicks checker
     app.loop.create_task(check_kicks_periodic())
     
     # Keep the script running indefinitely
     asyncio.get_event_loop().run_forever()
+
+    # Start the Pyrogram client
+    app.run()
+
