@@ -127,6 +127,6 @@ if __name__ == "__main__":
 
     # Start the periodic kicks checker
     app.loop.create_task(check_kicks_periodic())
-
-    # Run the client until it's stopped
-    app.idle()
+    
+    # Keep the script running indefinitely
+    asyncio.get_event_loop().run_forever()
