@@ -2,21 +2,21 @@ from datetime import datetime, timedelta
 import os
 import pymongo
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from pyrogram.types import *
 
 # MongoDB variables
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_URI = os.getenv("MONGO_URI", "")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "mydatabase")
 MONGO_COLLECTION_NAME = os.getenv("MONGO_COLLECTION_NAME", "kicks")
 
 # Pyrogram variables
-SESSION_NAME = os.getenv("SESSION_NAME", "my_bot")
+SESSION_NAME = os.getenv("SESSION_NAME", "kickbot")
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 API_ID = int(os.getenv("API_ID", ""))
 API_HASH = os.getenv("API_HASH", "")
 
 # Command prefix
-COMMAND_PREFIX = os.getenv("COMMAND_PREFIX", ".")
+COMMAND_PREFIX = os.getenv("PREFIX", ".")
 
 # Default kick time in hours
 DEFAULT_KICK_TIME_HOURS = int(os.getenv("DEFAULT_KICK_TIME_HOURS", "720"))  # 30 days in hours
