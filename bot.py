@@ -19,7 +19,7 @@ API_HASH = os.getenv("API_HASH", "cdae9279d0105638165415bf2769730d")
 COMMAND_PREFIX = os.getenv("PREFIX", ".")
 
 # Default kick time in hours
-DEFAULT_KICK_TIME_HOURS = int(os.getenv("DEFAULT_KICK_TIME_HOURS", "43200"))  # 30 days in hours
+DEFAULT_KICK_TIME = int(os.getenv("DEFAULT_KICK_TIME_HOURS", "43200"))  # 30 days in hours
 
 # Set up the MongoDB client and database
 mongo_client = pymongo.MongoClient(MONGO_URI)
@@ -60,7 +60,7 @@ async def kick_command(client: Client, message: Message):
 
         try:
             user_id = int(args[0])
-            kick_time = int(args[1]) if len(args) == 2 else DEFAULT_KICK_TIME_HOURS
+            kick_time = int(args[1]) if len(args) == 2 else DEFAULT_KICK_TIME
         except ValueError:
             await message.reply("User ID and kick time must be integers!")
             return
