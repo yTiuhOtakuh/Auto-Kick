@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime, timedelta
 import os
 import pymongo
-from pyrogram import Client, filters
+from pyrogram import Client, filters, enums
 from pyrogram.types import *
 
 # MongoDB variables
@@ -39,31 +39,30 @@ app = Client(
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
     # Check if the user is a group admin
-    is_admin = False
-    chat_member = await client.get_chat_member(
-        message.chat.id, message.from_user.id
-    )
-    if chat_member.status in ("creator", "administrator"):
-        is_admin = True
-    if not is_admin:
+    administrators = []
+    async for m in app.get_chat_members(message.chat.id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
+        administrators.append(m.user.id)
+
+    if message.from_user.id not in administrators:
         await message.reply("You must be a group admin to use this command!")
         return
 
-    # Parse the command arguments
-    args = message.text.split()[1:]
-    if len(args) < 1 or len(args) > 2:
-        await message.reply(f"Usage: {COMMAND_PREFIX}kick <user_id> [kick_time_in_hours]")
-        return
+    else:
+        # Parse the command arguments
+        args = message.text.split()[1:]
+        if len(args) < 1 or len(args) > 2:
+            await message.reply(f"Usage: {COMMAND_PREFIX}kick <user_id> [kick_time_in_hours]")
+            return
 
-    user_id = args[0]
-    kick_time = args[1] if len(args) == 2 else DEFAULT_KICK_TIME_HOURS
+        user_id = args[0]
+        kick_time = args[1] if len(args) == 2 else DEFAULT_KICK_TIME_HOURS
 
-    # Save the user ID and kick time to the database
-    kick_time = int(kick_time)
-    kick_datetime = datetime.utcnow() + timedelta(hours=kick_time)
-    col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
+        # Save the user ID and kick time to the database
+        kick_time = int(kick_time)
+        kick_datetime = datetime.utcnow() + timedelta(hours=kick_time)
+        col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
 
-    await message.reply(f"User {user_id} will be kicked in {kick_time} hours.")
+        await message.reply(f"User {user_id} will be kicked in {kick_time} hours.")
 
 
 async def check_kicks():
