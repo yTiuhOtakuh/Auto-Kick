@@ -27,7 +27,7 @@ db = mongo_client[MONGO_DB_NAME]
 col = db[MONGO_COLLECTION_NAME]
 
 # Set up the Pyrogram client
-app = Client(SESSION_NAME, bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH)
+app = Client(SESSION_NAME, bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH, workers=4)
 
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
