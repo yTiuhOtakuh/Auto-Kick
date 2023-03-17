@@ -1,9 +1,9 @@
+import asyncio
 from datetime import datetime, timedelta
 import os
 import pymongo
-from pyrogram.types import *
 from pyrogram import Client, filters
-from pyrogram import idle, Scheduler
+from pyrogram.types import *
 
 # MongoDB variables
 MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://ryme:ryme@cluster0.32cpya3.mongodb.net/?retryWrites=true&w=majority")
@@ -35,9 +35,6 @@ app = Client(
     api_hash=API_HASH,
     plugins=dict(root="plugins"),
 )
-
-scheduler = Scheduler(app)
-app.scheduler = scheduler
 
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
@@ -85,11 +82,6 @@ async def check_kicks():
 
         col.delete_one({"_id": kick["_id"]})
 
-    # Schedule the next check in 1 minute
-    scheduler.enqueue_in(60, check_kicks)
-
 if __name__ == "__main__":
-    # Start the scheduler
-    scheduler.enqueue_in(60, check_kicks)
     # Start the Pyrogram client
     app.run()
