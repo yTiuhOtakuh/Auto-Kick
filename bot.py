@@ -34,9 +34,9 @@ app = Client(
     api_hash=API_HASH,
 )
 
-@app.on_message(filters.command("start"))
+@app.on_message(filters.command("start") & filters.private)
 async def start(client: Client, message: Message):
-    await message.reply(f"Hi {user.first_name},\nI'm KickBot And I can Kick Members, From Your Group, After Given Time")
+    await message.reply(f"**Hi** {user.first_name},\n**I'm KickBot, kicks group members after given time. Boom!**")
 
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
@@ -59,8 +59,12 @@ async def kick_command(client: Client, message: Message):
             await message.reply(f"Usage:\n{COMMAND_PREFIX}kick [user_id] [kick_time_in_hours]")
             return
 
-        user_id = args[0]
-        kick_time = args[1] if len(args) == 2 else DEFAULT_KICK_TIME_HOURS
+        try:
+            user_id = int(args[0])
+            kick_time = int(args[1]) if len(args) == 2 else DEFAULT_KICK_TIME_HOURS
+        except ValueError:
+            await message.reply("User ID and kick time must be integers!")
+            return
 
         # Save the user ID and kick time to the database
         kick_time = int(kick_time)
@@ -88,3 +92,5 @@ async def check_kicks():
 if __name__ == "__main__":
     # Start the Pyrogram client
     app.run()
+    # start message in terminal
+    print("Bot Started 🤩")
