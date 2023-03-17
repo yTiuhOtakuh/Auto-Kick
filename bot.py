@@ -33,10 +33,12 @@ app = Client(SESSION_NAME, bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
     # Check if the user is a group admin
-    is_admin = await client.get_chat_member(
+    is_admin = False
+    chat_member = await client.get_chat_member(
         message.chat.id, message.from_user.id
-    ).then.lambda x: x.status in ("creator", "administrator")
-
+    )
+    if chat_member.status in ("creator", "administrator"):
+        is_admin = True
     if not is_admin:
         await message.reply("You must be a group admin to use this command!")
         return
