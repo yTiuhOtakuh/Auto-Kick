@@ -3,8 +3,7 @@ import os
 from pymongo
 from pyrogram import Client, filters
 from pyrogram.types import *
-from pyrogram import idle
-from pyrogram import Scheduler
+from pyrogram import idle, Scheduler
 
 # MongoDB variables
 MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://ryme:ryme@cluster0.32cpya3.mongodb.net/?retryWrites=true&w=majority")
