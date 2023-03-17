@@ -58,6 +58,10 @@ async def kick_command(client: Client, message: Message):
             await message.reply(f"**Usage**:\n\n{COMMAND_PREFIX}kick [user_id] [kick_time_in_minutes]")
             return
 
+        if len(args[0]) < 9 or len(args[0]) > 11:
+            await message.reply("Invalid user ID! Please provide correct user ID.")
+            return
+
         try:
             user_id = int(args[0])
             kick_time = int(args[1]) if len(args) == 2 else DEFAULT_KICK_TIME
