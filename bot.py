@@ -79,14 +79,18 @@ async def check_kicks():
     for kick in col.find({"kick_time": {"$lte": now}}):
         chat_id = kick["chat_id"]
         user_id = kick["user_id"]
+        kick_time = kick["kick_time"]
+        time_diff = kick_time - now
 
-        try:
-            await app.kick_chat_member(chat_id, user_id)
-            await app.unban_chat_member(chat_id, user_id)
-        except Exception as e:
-            print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
+        if time_diff.total_seconds() <= 0:
+            try:
+                await app.kick_chat_member(chat_id, user_id)
+                await app.unban_chat_member(chat_id, user_id)
+            except Exception as e:
+                print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
 
-        col.delete_one({"_id": kick["_id"]})
+            col.delete_one({"_id": kick["_id"]})
+
 
 if __name__ == "__main__":
     # start message in terminal
