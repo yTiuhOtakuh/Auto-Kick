@@ -123,7 +123,7 @@ if __name__ == "__main__":
     # notify
     print("started vroom vroom •••")
     # Start the Pyrogram client
-    app.start()
+    app.run()
 
     # Start the periodic kicks checker
     app.loop.create_task(check_kicks_periodic())
