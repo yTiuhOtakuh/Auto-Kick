@@ -37,7 +37,7 @@ app = Client(
 @app.on_message(filters.command("start") & filters.private)
 async def start(client: Client, message: Message):
     user=message.from_user
-    await message.reply(f"**Hi** {user.first_name},\n**I'm KickBot, kicks group members after given time. Boom!**")
+    await message.reply(f"**Hi** {user.first_name},\n\n**I'm KickBot, kicks group members after given time. Boom!**")
 
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
@@ -55,7 +55,7 @@ async def kick_command(client: Client, message: Message):
         # Parse the command arguments
         args = message.text.split()[1:]
         if len(args) < 1 or len(args) > 2:
-            await message.reply(f"Usage:\n{COMMAND_PREFIX}kick [user_id] [kick_time_in_hours]")
+            await message.reply(f"**Usage**:\n\n{COMMAND_PREFIX}kick [user_id] [kick_time_in_hours]")
             return
 
         try:
@@ -89,7 +89,8 @@ async def check_kicks():
         col.delete_one({"_id": kick["_id"]})
 
 if __name__ == "__main__":
-    # Start the Pyrogram client
-    app.run()
     # start message in terminal
     print("Bot Started 🤩")
+    # Start the Pyrogram client
+    app.run()
+
