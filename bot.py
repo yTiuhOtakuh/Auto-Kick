@@ -18,8 +18,8 @@ API_HASH = os.getenv("API_HASH", "cdae9279d0105638165415bf2769730d")
 # Command prefix
 COMMAND_PREFIX = os.getenv("PREFIX", ".")
 
-# Default kick time in hours
-DEFAULT_KICK_TIME = int(os.getenv("DEFAULT_KICK_TIME_HOURS", "43200"))  # 30 days in hours
+# Default kick time in minutes
+DEFAULT_KICK_TIME = int(os.getenv("DEFAULT_KICK_TIME", "43200"))  # 30 days in minutes
 
 # Set up the MongoDB client and database
 mongo_client = pymongo.MongoClient(MONGO_URI)
