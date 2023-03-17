@@ -65,18 +65,22 @@ async def kick_command(client: Client, message: Message):
         try:
             user_id = int(args[0])
             kick_time_str = args[1] if len(args) == 2 else str(DEFAULT_KICK_TIME)
+            kick_time_str = kick_time_str.lower()
+            kick_time = timedelta(minutes=int(kick_time_str[:-1]))
         except ValueError:
             await message.reply("User ID and kick time must be integers!")
             return
+        except:
+            await message.reply("Invalid kick time format! Please provide kick time in the format of [number][m/h/d].")
+            return
 
         # Convert kick time string to datetime.timedelta
-        kick_time_str = kick_time_str.lower()
-        if kick_time_str.endswith("m"):
-            kick_time = timedelta(minutes=int(kick_time_str[:-1]))
-        elif kick_time_str.endswith("h"):
+        if kick_time_str.endswith("h"):
             kick_time = timedelta(hours=int(kick_time_str[:-1]))
         elif kick_time_str.endswith("d"):
             kick_time = timedelta(days=int(kick_time_str[:-1]))
+        elif kick_time_str.endswith("m"):
+            kick_time = timedelta(minutes=int(kick_time_str[:-1]))
         else:
             await message.reply("Invalid kick time format! Please provide kick time in the format of [number][m/h/d].")
             return
