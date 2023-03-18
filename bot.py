@@ -51,6 +51,7 @@ async def start_command(client: Client, message: filters.Message):
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
+
     administrators = []
     async for member in app.iter_chat_members(chat_id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
         administrators.append(member.user.id)
