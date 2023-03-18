@@ -1,10 +1,9 @@
 import asyncio
 from datetime import datetime, timedelta
 import os
-import pymongo
 from pyrogram import Client, filters, enums
 from pyrogram.types import *
-from signal import SIGINT, SIGTERM
+import motor.motor_asyncio
 
 # MongoDB variables
 MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://ryme:ryme@cluster0.32cpya3.mongodb.net/?retryWrites=true&w=majority")
@@ -23,9 +22,10 @@ COMMAND_PREFIX = os.getenv("PREFIX", ".")
 DEFAULT_KICK_TIME = int(os.getenv("DEFAULT_KICK_TIME", "43200"))  # 30 days in minutes
 
 # Set up the MongoDB client and database
-mongo_client = pymongo.MongoClient(MONGO_URI)
+mongo_client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
 db = mongo_client[MONGO_DB_NAME]
 col = db[MONGO_COLLECTION_NAME]
+
 
 # Set up the Pyrogram client
 app = Client(
@@ -72,14 +72,14 @@ async def kick_command(client: Client, message: Message):
 
     # Save the user ID and kick time to the database
     kick_datetime = datetime.utcnow() + kick_time
-    col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
+    await col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
 
     await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
 
 async def check_kicks():
     # Check the database for any kicks that need to be performed
     now = datetime.utcnow()
-    for kick in col.find({"kick_time": {"$lte": now}}):
+    async for kick in col.find({"kick_time": {"$lte": now}}):
         chat_id = kick["chat_id"]
         user_id = kick["user_id"]
         kick_time = kick["kick_time"]
@@ -92,15 +92,19 @@ async def check_kicks():
             except Exception as e:
                 print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
 
-            col.delete_one({"_id": kick["_id"]})
+            await col.delete_one({"_id": kick["_id"]})
+
 
 async def check_kicks_periodic():
     while True:
         # Check the kicks database
-        check_kicks()
+        await check_kicks()
         # Wait for 1 minute before checking again
-        asyncio.sleep(60)
+        await asyncio.sleep(60)
 
 if __name__ == "__main__":
     # Start the bot
-    app.run()
+    asyncio.get_event_loop().run_until_complete(app.start())
+    asyncio.get_event_loop().create_task(check_kicks_periodic())
+    asyncio.get_event_loop().run_forever()
+
