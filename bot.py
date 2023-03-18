@@ -48,13 +48,39 @@ async def start_command(client: Client, message: filters.Message):
     user = message.from_user
     await message.reply(f"Hi {user.first_name},\n\nI'm KickBot, kicks group members after a given time. Boom!")
 
+
+async def check_kicks():
+    # Check the database for any kicks that need to be performed
+    now = datetime.utcnow()
+    async for kick in col.find({"kick_time": {"$lte": now}}):
+        chat_id = kick["chat_id"]
+        user_id = kick["user_id"]
+        kick_time = kick["kick_time"]
+        time_diff = kick_time - now
+
+        if time_diff.total_seconds() <= 0:
+            try:
+                await app.kick_chat_member(chat_id, user_id)
+                await app.unban_chat_member(chat_id, user_id)
+            except Exception as e:
+                print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
+
+            await col.delete_one({"_id": kick["_id"]})
+
+@app.on_message(filters.text)
+async def text(client, message):
+    await check_kicks()
+    await asyncio.sleep(60)
+
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
+
     try:
-        # Get list of group administrators
+        # Get administrators
         administrators = []
-        async for member in client.iter_chat_members(message.chat.id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
-            administrators.append(member.user.id)
+        async for member in app.get_chat_members(message.chat.id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
+            if isinstance(member, ChatMember):
+                administrators.append(member.user.id)
 
         # Check if the user is a group admin
         if message.from_user.id not in administrators:
@@ -90,34 +116,6 @@ async def kick_command(client: Client, message: Message):
 
     except Exception as e:
         await message.reply(f"An error occurred: {e}")
-
-async def check_kicks():
-    try:
-        # Check the database for any kicks that need to be performed
-        now = datetime.utcnow()
-        async for kick in col.find({"kick_time": {"$lte": now}}):
-            chat_id = kick["chat_id"]
-            user_id = kick["user_id"]
-            kick_time = kick["kick_time"]
-            time_diff = kick_time - now
-
-            if time_diff.total_seconds() <= 0:
-                try:
-                    await client.kick_chat_member(chat_id, user_id)
-                    await client.unban_chat_member(chat_id, user_id)
-                except Exception as e:
-                    print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
-
-                await col.delete_one({"_id": kick["_id"]})
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-@app.on_message(filters.text)
-async def start_kick_checker():
-    # Run the kick checker every minute
-    while True:
-        await check_kicks()
-        await asyncio.sleep(60)
 
 app.run()
 
