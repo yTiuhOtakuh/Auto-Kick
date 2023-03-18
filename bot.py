@@ -97,9 +97,9 @@ async def check_kicks():
 async def check_kicks_periodic():
     while True:
         # Check the kicks database
-        await check_kicks()
+        check_kicks()
         # Wait for 1 minute before checking again
-        await asyncio.sleep(60)
+        asyncio.sleep(60)
 
 if __name__ == "__main__":
     # Start the periodic kicks checker
