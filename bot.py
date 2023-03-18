@@ -1,9 +1,9 @@
 import asyncio
 from datetime import datetime, timedelta
 import os
-from pyrogram import Client, filters, enums
-from pyrogram.types import *
+from pyrogram import Client, filters
 import motor.motor_asyncio
+
 
 # MongoDB variables
 MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://ryme:ryme@cluster0.32cpya3.mongodb.net/?retryWrites=true&w=majority")
@@ -11,15 +11,16 @@ MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "mydatabase")
 MONGO_COLLECTION_NAME = os.getenv("MONGO_COLLECTION_NAME", "kicks")
 
 # Pyrogram variables
-BOT_TOKEN = os.getenv("BOT_TOKEN", "6214533661:AAHi_Op06eO6ms0HIiP1EqBVCU1xmKEoqVo")
-API_ID = int(os.getenv("API_ID", "11948995"))
-API_HASH = os.getenv("API_HASH", "cdae9279d0105638165415bf2769730d")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "")
+API_ID = int(os.getenv("API_ID", ""))
+API_HASH = os.getenv("API_HASH", "")
 
 # Command prefix
 COMMAND_PREFIX = os.getenv("PREFIX", ".")
 
 # Default kick time in minutes
 DEFAULT_KICK_TIME = int(os.getenv("DEFAULT_KICK_TIME", "43200"))  # 30 days in minutes
+
 
 # Set up the MongoDB client and database
 mongo_client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
@@ -35,13 +36,12 @@ app = Client(
     api_hash=API_HASH,
 )
 
-@app.on_message(filters.command("start") & filters.private)
-async def start(client: Client, message: Message):
+
+async def start_command(client: Client, message: filters.Message):
     user = message.from_user
-    await message.reply(f"Hi {user.first_name},\n\nI'm KickBot, kicks group members after given time. Boom!")
+    await message.reply(f"Hi {user.first_name},\n\nI'm KickBot, kicks group members after a given time. Boom!")
 
 
-@app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
     # Check if the user is a group admin
     if message.from_user.id not in (await message.chat.get_administrators()).user_ids:
@@ -75,6 +75,7 @@ async def kick_command(client: Client, message: Message):
     await col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
 
     await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
+
 
 async def check_kicks():
     # Check the database for any kicks that need to be performed
