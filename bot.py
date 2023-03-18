@@ -4,6 +4,7 @@ import os
 import pymongo
 from pyrogram import Client, filters, enums
 from pyrogram.types import *
+from signal import SIGINT, SIGTERM
 
 # MongoDB variables
 MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://ryme:ryme@cluster0.32cpya3.mongodb.net/?retryWrites=true&w=majority")
@@ -91,7 +92,6 @@ async def kick_command(client: Client, message: Message):
 
         await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
 
-
 async def check_kicks():
     # Check the database for any kicks that need to be performed
     now = datetime.utcnow()
@@ -110,7 +110,6 @@ async def check_kicks():
 
             col.delete_one({"_id": kick["_id"]})
 
-
 async def check_kicks_periodic():
     while True:
         # Check the kicks database
@@ -118,17 +117,23 @@ async def check_kicks_periodic():
         # Wait for 1 minute before checking again
         await asyncio.sleep(60)
 
+def run_forever():
+    # Start the periodic kicks checker
+    app.loop.create_task(check_kicks_periodic())
+
+    # Add signal handlers for graceful shutdown
+    app.loop.add_signal_handler(SIGINT, stop)
+    app.loop.add_signal_handler(SIGTERM, stop)
+
+    # Keep the script running indefinitely
+    app.run_until_disconnected()
+
+def stop():
+    tasks = asyncio.all_tasks()
+    for task in tasks:
+        task.cancel()
 
 if __name__ == "__main__":
     # notify
     print("started vroom vroom •••")
-
-    # Start the periodic kicks checker
-    app.loop.create_task(check_kicks_periodic())
-    
-    # Keep the script running indefinitely
-    asyncio.get_event_loop().run_forever()
-
-    # Start the Pyrogram client
-    app.run()
-
+    run_forever()
