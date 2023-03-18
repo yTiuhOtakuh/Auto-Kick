@@ -120,18 +120,9 @@ async def check_kicks_periodic():
 def run_forever():
     # Start the periodic kicks checker
     app.loop.create_task(check_kicks_periodic())
-
-    # Add signal handlers for graceful shutdown
-    app.loop.add_signal_handler(SIGINT, stop)
-    app.loop.add_signal_handler(SIGTERM, stop)
-
-    # Keep the script running indefinitely
-    app.run_until_disconnected()
-
-def stop():
-    tasks = asyncio.all_tasks()
-    for task in tasks:
-        task.cancel()
+    app.start()
+    app.stop()
+    app.idle()
 
 if __name__ == "__main__":
     # notify
