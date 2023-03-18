@@ -123,7 +123,7 @@ async def start():
 
 async def main():
     # Start the bot
-    loop.run_until_complete(start())
+    start())
     loop.create_task(check_kicks_periodic())
     loop.run_forever()
 
