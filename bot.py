@@ -48,6 +48,10 @@ async def start_command(client: Client, message: filters.Message):
     user = message.from_user
     await message.reply(f"Hi {user.first_name},\n\nI'm KickBot, kicks group members after a given time. Boom!")
 
+@app.on_message(filters.text)
+async def text(client: Client, message: Message):
+    await check_kicks()
+    await asyncio.sleep(60)
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
@@ -89,13 +93,8 @@ async def kick_command(client: Client, message: Message):
         await col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
         await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
 
-        # Check the kicks database
-        await check_kicks()
     except Exception as e:
         await message.reply(f"An error occurred: {e}")
-
-    # Wait for 1 minute before checking again
-    await asyncio.sleep(60)
 
 
 async def check_kicks():
@@ -116,13 +115,6 @@ async def check_kicks():
 
             await col.delete_one({"_id": kick["_id"]})
 
-
-async def check_kicks_periodic():
-    while True:
-        # Check the kicks database
-        await check_kicks()
-        # Wait for 1 minute before checking again
-        await asyncio.sleep(60)
 
 app.run()
 
