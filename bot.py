@@ -122,9 +122,9 @@ async def start():
     await app.start()
 
 if __name__ == "__main__":
-    # Start the bot
-    loop().run_until_complete(start())
-    loop().create_task(check_kicks_periodic())
-    loop().run_forever()
+    loop.run_until_complete(start())
+    loop.create_task(check_kicks_periodic())
+    loop.run_forever()
+
 
 
