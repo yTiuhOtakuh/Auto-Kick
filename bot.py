@@ -88,8 +88,14 @@ async def kick_command(client: Client, message: Message):
         kick_datetime = datetime.utcnow() + kick_time
         await col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
         await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
+
+        # Check the kicks database
+        await check_kicks()
     except Exception as e:
         await message.reply(f"An error occurred: {e}")
+
+    # Wait for 1 minute before checking again
+    await asyncio.sleep(60)
 
 
 async def check_kicks():
