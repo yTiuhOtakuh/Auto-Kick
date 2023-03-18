@@ -123,8 +123,8 @@ async def start():
 
 if __name__ == "__main__":
     # Start the bot
-    asyncio.get_event_loop().run_until_complete(start())
-    asyncio.get_event_loop().create_task(check_kicks_periodic())
-    asyncio.get_event_loop().run_forever()
+    loop().run_until_complete(start())
+    loop().create_task(check_kicks_periodic())
+    loop().run_forever()
 
 
