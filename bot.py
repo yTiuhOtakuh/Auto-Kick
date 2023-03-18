@@ -11,9 +11,9 @@ MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "mydatabase")
 MONGO_COLLECTION_NAME = os.getenv("MONGO_COLLECTION_NAME", "kicks")
 
 # Pyrogram variables
-BOT_TOKEN = os.getenv("BOT_TOKEN", "")
-API_ID = int(os.getenv("API_ID", ""))
-API_HASH = os.getenv("API_HASH", "")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "6214533661:AAHi_Op06eO6ms0HIiP1EqBVCU1xmKEoqVo")
+API_ID = int(os.getenv("API_ID", "11948995"))
+API_HASH = os.getenv("API_HASH", "cdae9279d0105638165415bf2769730d")
 
 # Command prefix
 COMMAND_PREFIX = os.getenv("PREFIX", ".")
@@ -36,12 +36,12 @@ app = Client(
     api_hash=API_HASH,
 )
 
-
+# start command 
 async def start_command(client: Client, message: filters.Message):
     user = message.from_user
     await message.reply(f"Hi {user.first_name},\n\nI'm KickBot, kicks group members after a given time. Boom!")
 
-
+$ kick command 
 async def kick_command(client: Client, message: Message):
     # Check if the user is a group admin
     if message.from_user.id not in (await message.chat.get_administrators()).user_ids:
