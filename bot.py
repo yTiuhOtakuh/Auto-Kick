@@ -105,7 +105,7 @@ async def run_forever():
     # Start the periodic kicks checker
     asyncio.create_task(check_kicks_periodic())
     # Start the bot
-    await app.start()
+    app.run()
 
 if __name__ == "__main__":
     asyncio.run(run_forever())
