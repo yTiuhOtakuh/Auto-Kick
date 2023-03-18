@@ -37,10 +37,6 @@ app = Client(
     api_hash=API_HASH,
 )
 
-# Start the asyncio event loop
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-
 
 # start command 
 @app.on_message(filters.command("start") & filters.private)
