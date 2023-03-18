@@ -52,11 +52,11 @@ async def start_command(client: Client, message: filters.Message):
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
 
-    administrators = []
-    async for member in app.iter_chat_members(chat_id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
-        administrators.append(member.user.id)
-
     try:
+        administrators = []
+        async for member in app.iter_chat_members(message.chat.id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
+            administrators.append(member.user.id)
+
         # Check if the user is a group admin
         if message.from_user.id not in administrators:
             await message.reply("You must be a group admin to use this command!")
