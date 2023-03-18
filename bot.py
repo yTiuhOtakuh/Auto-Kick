@@ -113,9 +113,12 @@ async def check_kicks_periodic():
         # Wait for 1 minute before checking again
         await asyncio.sleep(60)
 
+async def start():
+    await app.start()
+
 if __name__ == "__main__":
     # Start the bot
-    asyncio.get_event_loop().run_until_complete(app.start())
+    asyncio.get_event_loop().run_until_complete(start())
     asyncio.get_event_loop().create_task(check_kicks_periodic())
     asyncio.get_event_loop().run_forever()
 
