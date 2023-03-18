@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timedelta
 import os
-from pyrogram import Client, filters
+from pyrogram import Client, filters, enums
 import motor.motor_asyncio
 from pyrogram.types import *
 
@@ -48,17 +48,16 @@ async def start_command(client: Client, message: filters.Message):
     user = message.from_user
     await message.reply(f"Hi {user.first_name},\n\nI'm KickBot, kicks group members after a given time. Boom!")
 
-# kick command 
+
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
-    """Kicks a group member after a given time.
+    administrators = []
+    async for member in app.iter_chat_members(chat_id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
+        administrators.append(member.user.id)
 
-    Usage: .kick [user_id] [kick_time]
-    Example: .kick 1234567890 30d (kicks user with ID 1234567890 after 30 days)
-    """
     try:
         # Check if the user is a group admin
-        if message.from_user.id not in (await message.chat.get_administrators()).user_ids:
+        if message.from_user.id not in administrators:
             await message.reply("You must be a group admin to use this command!")
             return
 
