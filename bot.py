@@ -37,78 +37,65 @@ app = Client(
 
 @app.on_message(filters.command("start") & filters.private)
 async def start(client: Client, message: Message):
-    user=message.from_user
-    await message.reply(f"**Hi** {user.first_name},\n\n **I'm KickBot, kicks group members after given time. Boom!**")
+    user = message.from_user
+    await message.reply(f"Hi {user.first_name},\n\nI'm KickBot, kicks group members after given time. Boom!")
 
 
 @app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
     # Check if the user is a group admin
-    administrators = []
-    async for m in app.get_chat_members(message.chat.id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
-        administrators.append(m.user.id)
-
-    if message.from_user.id not in administrators:
+    if message.from_user.id not in (await message.chat.get_administrators()).user_ids:
         await message.reply("You must be a group admin to use this command!")
         return
 
-    else:
-        # Parse the command arguments
-        args = message.text.split()[1:]
-        if len(args) < 1 or len(args) > 2:
-            await message.reply(f"**Usage**:\n{COMMAND_PREFIX}kick [user_id] [kick_time]")
-            return
+    # Parse the command arguments
+    args = message.text.split()[1:]
+    if len(args) not in (1, 2):
+        await message.reply(f"Usage:\n{COMMAND_PREFIX}kick [user_id] [kick_time]")
+        return
 
-        if len(args[0]) < 9 or len(args[0]) > 11:
-            await message.reply("Invalid user ID! Please provide me correct user ID.")
-            return
+    user_id = args[0]
+    if not user_id.isdigit() or not (9 <= len(user_id) <= 11):
+        await message.reply("Invalid user ID! Please provide a valid user ID.")
+        return
 
-        try:
-            user_id = int(args[0])
-            kick_time_str = args[1] if len(args) == 2 else str(DEFAULT_KICK_TIME)
-            kick_time_str = kick_time_str.lower()
-            kick_time = timedelta(minutes=int(kick_time_str[:-1]))
-        except ValueError:
-            await message.reply("User ID and kick time must be integers!")
-            return
-        except:
-            await message.reply("Invalid kick time format! Please provide kick time in the format of [number][m/h/d].")
-            return
+    kick_time_str = args[1].lower() if len(args) == 2 else f"{DEFAULT_KICK_TIME}m"
+    if not kick_time_str[:-1].isdigit() or kick_time_str[-1] not in ("m", "h", "d"):
+        await message.reply("Invalid kick time format! Please provide kick time in the format of [number][m/h/d].")
+        return
 
-        # Convert kick time string to datetime.timedelta
-        if kick_time_str.endswith("h"):
-            kick_time = timedelta(hours=int(kick_time_str[:-1]))
-        elif kick_time_str.endswith("d"):
-            kick_time = timedelta(days=int(kick_time_str[:-1]))
-        elif kick_time_str.endswith("m"):
-            kick_time = timedelta(minutes=int(kick_time_str[:-1]))
-        else:
-            await message.reply("Invalid kick time format! Please provide kick time in the format of [number][m/h/d].")
-            return
+    kick_time = {
+        "m": timedelta(minutes=int(kick_time_str[:-1])),
+        "h": timedelta(hours=int(kick_time_str[:-1])),
+        "d": timedelta(days=int(kick_time_str[:-1])),
+    }.get(kick_time_str[-1])
 
-        # Save the user ID and kick time to the database
-        kick_datetime = datetime.utcnow() + kick_time
-        col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
+    # Save the user ID and kick time to the database
+    kick_datetime = datetime.utcnow() + kick_time
+    col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
 
-        await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
+    await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
 
 async def check_kicks():
     # Check the database for any kicks that need to be performed
     now = datetime.utcnow()
-    for kick in col.find({"kick_time": {"$lte": now}}):
-        chat_id = kick["chat_id"]
-        user_id = kick["user_id"]
-        kick_time = kick["kick_time"]
-        time_diff = kick_time - now
+    async with mongo_client.start_session() as session:
+        with session.start_transaction():
+            for kick in col.find({"kick_time": {"$lte": now}}, session=session):
+                chat_id = kick["chat_id"]
+                user_id = kick["user_id"]
+                kick_time = kick["kick_time"]
+                time_diff = kick_time - now
 
-        if time_diff.total_seconds() <= 0:
-            try:
-                await app.ban_chat_member(chat_id, user_id)
-                await app.unban_chat_member(chat_id, user_id)
-            except Exception as e:
-                print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
+                if time_diff.total_seconds() <= 0:
+                    try:
+                        await app.ban_chat_member(chat_id, user_id)
+                        await app.unban_chat_member(chat_id, user_id)
+                    except Exception as e:
+                        print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
 
-            col.delete_one({"_id": kick["_id"]})
+                    col.delete_one({"_id": kick["_id"]}, session=session)
+
 
 async def check_kicks_periodic():
     while True:
@@ -120,11 +107,11 @@ async def check_kicks_periodic():
 def run_forever():
     # Start the periodic kicks checker
     app.loop.create_task(check_kicks_periodic())
-    app.start()
-    app.stop()
-    app.idle()
+    # Start the Discord client
+    app.run()
 
 if __name__ == "__main__":
     # notify
     print("started vroom vroom •••")
     run_forever()
+
