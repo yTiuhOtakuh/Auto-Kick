@@ -103,6 +103,6 @@ async def check_kicks_periodic():
 
 if __name__ == "__main__":
     # Start the periodic kicks checker
-    asyncio.create_task(check_kicks_periodic())
+    check_kicks_periodic()
     # Start the bot
     app.run()
