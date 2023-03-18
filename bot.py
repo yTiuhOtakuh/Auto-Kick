@@ -101,13 +101,8 @@ async def check_kicks_periodic():
         # Wait for 1 minute before checking again
         await asyncio.sleep(60)
 
-async def run_forever():
+if __name__ == "__main__":
     # Start the periodic kicks checker
     asyncio.create_task(check_kicks_periodic())
     # Start the bot
     app.run()
-
-if __name__ == "__main__":
-    asyncio.run(run_forever())
-    # notify
-    print("started vroom vroom •••")
