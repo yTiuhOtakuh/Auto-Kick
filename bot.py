@@ -96,7 +96,6 @@ async def check_kicks():
 
                     col.delete_one({"_id": kick["_id"]}, session=session)
 
-
 async def check_kicks_periodic():
     while True:
         # Check the kicks database
@@ -104,14 +103,14 @@ async def check_kicks_periodic():
         # Wait for 1 minute before checking again
         await asyncio.sleep(60)
 
-def run_forever():
+async def run_forever():
     # Start the periodic kicks checker
-    app.loop.create_task(check_kicks_periodic())
-    # Start the Discord client
-    app.run()
+    asyncio.create_task(check_kicks_periodic())
+    # Start the bot
+    await app.start()
+    await app.idle()
 
 if __name__ == "__main__":
+    asyncio.run(run_forever())
     # notify
     print("started vroom vroom •••")
-    run_forever()
-
