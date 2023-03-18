@@ -37,44 +37,53 @@ app = Client(
 )
 
 # start command 
+@app.on_message(filters.command("start") & filters.private)
 async def start_command(client: Client, message: filters.Message):
     user = message.from_user
     await message.reply(f"Hi {user.first_name},\n\nI'm KickBot, kicks group members after a given time. Boom!")
 
-$ kick command 
+# kick command 
+@app.on_message(filters.command("kick", prefixes=COMMAND_PREFIX) & filters.group)
 async def kick_command(client: Client, message: Message):
-    # Check if the user is a group admin
-    if message.from_user.id not in (await message.chat.get_administrators()).user_ids:
-        await message.reply("You must be a group admin to use this command!")
-        return
+    """Kicks a group member after a given time.
 
-    # Parse the command arguments
-    args = message.text.split()[1:]
-    if len(args) not in (1, 2):
-        await message.reply(f"Usage:\n{COMMAND_PREFIX}kick [user_id] [kick_time]")
-        return
+    Usage: .kick [user_id] [kick_time]
+    Example: .kick 1234567890 30d (kicks user with ID 1234567890 after 30 days)
+    """
+    try:
+        # Check if the user is a group admin
+        if message.from_user.id not in (await message.chat.get_administrators()).user_ids:
+            await message.reply("You must be a group admin to use this command!")
+            return
 
-    user_id = args[0]
-    if not user_id.isdigit() or not (9 <= len(user_id) <= 11):
-        await message.reply("Invalid user ID! Please provide a valid user ID.")
-        return
+        # Parse the command arguments
+        args = message.text.split()[1:]
+        if len(args) not in (1, 2):
+            await message.reply(f"Usage:\n{COMMAND_PREFIX}kick [user_id] [kick_time]")
+            return
 
-    kick_time_str = args[1].lower() if len(args) == 2 else f"{DEFAULT_KICK_TIME}m"
-    if not kick_time_str[:-1].isdigit() or kick_time_str[-1] not in ("m", "h", "d"):
-        await message.reply("Invalid kick time format! Please provide kick time in the format of [number][m/h/d].")
-        return
+        user_id = args[0]
+        if not user_id.isdigit() or not (9 <= len(user_id) <= 11):
+            await message.reply("Invalid user ID! Please provide a valid user ID.")
+            return
 
-    kick_time = {
-        "m": timedelta(minutes=int(kick_time_str[:-1])),
-        "h": timedelta(hours=int(kick_time_str[:-1])),
-        "d": timedelta(days=int(kick_time_str[:-1])),
-    }.get(kick_time_str[-1])
+        kick_time_str = args[1].lower() if len(args) == 2 else f"{DEFAULT_KICK_TIME}m"
+        if not kick_time_str[:-1].isdigit() or kick_time_str[-1] not in ("m", "h", "d"):
+            await message.reply("Invalid kick time format! Please provide kick time in the format of [number][m/h/d].")
+            return
 
-    # Save the user ID and kick time to the database
-    kick_datetime = datetime.utcnow() + kick_time
-    await col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
+        kick_time = {
+            "m": timedelta(minutes=int(kick_time_str[:-1])),
+            "h": timedelta(hours=int(kick_time_str[:-1])),
+            "d": timedelta(days=int(kick_time_str[:-1])),
+        }.get(kick_time_str[-1])
 
-    await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
+        # Save the user ID and kick time to the database
+        kick_datetime = datetime.utcnow() + kick_time
+        await col.insert_one({"chat_id": message.chat.id, "user_id": int(user_id), "kick_time": kick_datetime})
+        await message.reply(f"User {user_id} will be kicked in {kick_time_str}.")
+    except Exception as e:
+        await message.reply(f"An error occurred: {e}")
 
 
 async def check_kicks():
