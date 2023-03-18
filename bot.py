@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import os
 from pyrogram import Client, filters
 import motor.motor_asyncio
+from pyrogram.types import *
 
 
 # MongoDB variables
