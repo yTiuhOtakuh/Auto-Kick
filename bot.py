@@ -79,22 +79,20 @@ async def kick_command(client: Client, message: Message):
 async def check_kicks():
     # Check the database for any kicks that need to be performed
     now = datetime.utcnow()
-    async with mongo_client.start_session() as session:
-        with session.start_transaction():
-            for kick in col.find({"kick_time": {"$lte": now}}, session=session):
-                chat_id = kick["chat_id"]
-                user_id = kick["user_id"]
-                kick_time = kick["kick_time"]
-                time_diff = kick_time - now
+    for kick in col.find({"kick_time": {"$lte": now}}):
+        chat_id = kick["chat_id"]
+        user_id = kick["user_id"]
+        kick_time = kick["kick_time"]
+        time_diff = kick_time - now
 
-                if time_diff.total_seconds() <= 0:
-                    try:
-                        await app.ban_chat_member(chat_id, user_id)
-                        await app.unban_chat_member(chat_id, user_id)
-                    except Exception as e:
-                        print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
+        if time_diff.total_seconds() <= 0:
+            try:
+                await app.ban_chat_member(chat_id, user_id)
+                await app.unban_chat_member(chat_id, user_id)
+            except Exception as e:
+                print(f"Error kicking user {user_id} from chat {chat_id}: {e}")
 
-                    col.delete_one({"_id": kick["_id"]}, session=session)
+            col.delete_one({"_id": kick["_id"]})
 
 async def check_kicks_periodic():
     while True:
