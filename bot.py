@@ -74,8 +74,8 @@ async def kick_command(client: Client, message: Message):
     try:
         # Get administrators
         administrators = []
-        async for member in app.get_chat_members(message.chat.id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
-            administrators.append(member.user.id)
+        async for m in app.get_chat_members(chat_id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
+            administrators.append(m)
 
         # Check if the user is a group admin
         if message.from_user.id not in administrators:
